@@ -21,17 +21,17 @@ class TodoList:
         })
 
     def view_tasks(self):
-        for idx, task in enumerate(self.tasks, start=1):
+        for idx, task in enumerate(self.tasks):
             status = "✔" if task["done"] else "❌"
             print(f"{idx} : {task['text']} : status {status} ")
 
     def update_task(self, index_task):
-        self.tasks[index_task -
-                   1]["done"] = not self.tasks[index_task - 1]["done"]
-        return self.tasks[index_task - 1]
+        self.tasks[index_task]["done"] = not self.tasks[index_task]["done"]
+        # return self.tasks[index_task]
 
     def delete_task(self, index_task):
-        return self.tasks.pop(index_task - 1)
+        # self.tasks.pop(index_task)
+        return self.tasks.pop(index_task)
 
     def save_tasks(self):
         with open("tasks.txt", "w") as file:

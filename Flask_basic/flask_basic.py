@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, redirect
 from app import TodoList
 
 
@@ -21,13 +21,21 @@ def home():
 def show_tasks():
     output = ""
 
-    for task in todo_list.tasks:
+    for idx, task in enumerate(todo_list.tasks):
         status = "✔" if task["done"] else "❌"
         output += f"""<li>
+        
         <form action='/update-task' method='post'>
             {task['text']} | {status}
-            <button type="submit">{'Undo' if task['done'] else 'Done'}</button>
-        </li></form>"""
+            <input type='hidden' name='update_index' value="{idx}">
+            <button type='submit'>{'Undo' if task['done'] else 'Done'}</button>
+            
+        </form>
+        <form action='/delete-task' method='post'>
+            <input type='hidden' name='delete_index' value="{idx}">
+            <button type='submit'>Delete</button>
+        </form>
+        </li>"""
 
     return f"""
     <h1>My To Do Lists.</h1>
@@ -39,6 +47,31 @@ def show_tasks():
         <button type="submit">Add</button>
     </form>
 """
+
+
+@app.route("/delete-task", methods=['POST'])
+def delete_task():
+    index = request.form.get("delete_index")
+    if index is not None:
+        index = int(index)
+        delete_task = todo_list.delete_task(index)
+        todo_list.save_tasks()
+
+    return f"""
+    <title>Delete Complete</title>
+    <p>{delete_task['text']} has been deleted.</p>
+    <p><a href="/veiwtasks">Back to list</a></p>
+    """
+
+
+@app.route("/update-task", methods=['POST'])
+def update_task():
+    index = request.form.get("update_index")
+    if index is not None:
+        index = int(index)
+        todo_list.update_task(index)
+
+    return redirect("/veiwtasks")
 
 
 @app.route("/add", methods=['POST'])
